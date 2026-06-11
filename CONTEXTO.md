@@ -36,9 +36,10 @@
 - Probar con los respaldos JSON reales del usuario antes de entregar.
 
 ## Preguntas abiertas (esperando respuesta del usuario)
-1. Nombre correcto del hospital para unificar (GEB dice "Hospital Regional de
+1. Respaldo real (.json o .xlsm) para calibrar y probar con sus datos.
+2. Decisión sobre PROPUESTA.md (estructura de 5 pestañas; destino de Pendientes).
+3. Nombre correcto del hospital para unificar (GEB dice "Hospital Regional de
    Temuco"; los reportes técnicos dicen "Hospital Doctor Hernán Henríquez Aravena").
-2. Destino de las pestañas ocultas: cuáles se reactivan, cuáles se podan definitivamente.
 
 ## Bitácora de aprendizajes
 - 11-06-2026 · Inicio de esta etapa: se recibe el zip con el proyecto completo
@@ -56,3 +57,9 @@
   delegación registrada → archivar** cuando vuelve firmado. Eso reemplaza anotarlo
   como pendiente manual.
 - 11-06-2026 · "Ignacio" = Ignacio Berner Bergara (de la lista de ejecutores).
+- 11-06-2026 · **"No ocultes nada"**: revirtió la decisión de trabajar con una
+  sola pestaña visible. No quiere perder visión del conjunto mientras se decide
+  la estructura. En su lugar pidió: analizar el programa y los datos, y
+  **proponer un programa** → nació PROPUESTA.md (5 pestañas organizadas por sus
+  dos ejes reales: el equipo y el mes). Lección: antes de tocar la estructura
+  visible, proponer en papel y esperar su decisión.

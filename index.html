@@ -206,13 +206,14 @@ const HITOS = {
 };
 const LS_KEY = "geb_hrt_v3";   // clave nueva: parte limpio, sin datos precargados
 
-// Trabajo enfocado: solo estas pestañas se muestran en la barra de navegación.
-// El resto del código queda intacto; para reactivar una pestaña basta agregar
-// su nombre aquí (p. ej. "plan", "documentos", "datos").
-const TABS_VISIBLES = ["inventario"];
+// Pestañas visibles en la barra de navegación: TODAS (decisión del usuario
+// 11-06-2026: "no ocultes nada"). Quitar un nombre de esta lista oculta esa
+// pestaña sin borrar su código.
+const TABS_VISIBLES = ["hoy","panel","inventario","plan","asignacion","documentos",
+  "informes","correctivos","reportes","pendientes","datos"];
 
 let S = null;          // estado global
-let tabActual = TABS_VISIBLES[0];
+let tabActual = "hoy";
 let mesPlan = new Date().getFullYear()===ANIO ? new Date().getMonth() : 0;
 let mesAsig = mesPlan;
 let filtros = {q:"",fam:"",serv:"",estado:""};

@@ -51,3 +51,5 @@ Etapa nueva (este repositorio):
 
 - 11-06-2026 · Trabajo enfocado: solo Inventario visible (TABS_VISIBLES) e importación desde Inventario vacío
 - 11-06-2026 · Ficha del equipo: documentos del plan con flujo imprimir → entregar a persona (delegación registrada) → archivar
+- 11-06-2026 · Revertir ocultamiento: todas las pestañas visibles de nuevo ("no ocultes nada")
+- 11-06-2026 · PROPUESTA.md: análisis del programa y propuesta de reorganización en 5 pestañas

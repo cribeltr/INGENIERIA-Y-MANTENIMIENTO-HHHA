@@ -130,11 +130,15 @@ usuario**. El lector/generador xlsx se valida con openpyxl en Python.
 
 ## Estado actual e ideas pendientes (no comprometidas)
 
-- **Trabajo enfocado en una sola vista (decisión 11-06-2026):** la constante
-  `TABS_VISIBLES` controla qué pestañas se ven; hoy solo `["inventario"]`.
-  El código de las demás está intacto. La ficha del equipo incluye la sección
-  "📁 Documentos del plan" (deriva de `docsDeEquipo`, compartida con `calcDocs`)
-  con flujo imprimir → entregado a persona (docflow.a) → archivado.
+- **Todas las pestañas visibles** (decisión 11-06-2026: "no ocultes nada"; la
+  constante `TABS_VISIBLES` permite ocultar sin borrar, hoy lista las 11).
+  La ficha del equipo incluye la sección "📁 Documentos del plan" (deriva de
+  `docsDeEquipo`, compartida con `calcDocs`) con flujo imprimir → entregado a
+  persona (docflow.a) → archivado.
+- **PROPUESTA.md** (11-06-2026) propone reorganizar en 5 pestañas (Mi día,
+  Equipos, Mes de trabajo, Servicio técnico, Datos). Esperando decisión del
+  usuario; no construir sin su OK, y nunca retirar una vista sin que él valide
+  su reemplazo.
 - El usuario evaluará qué pestañas usa de verdad para PODAR el programa
   (minimalismo). Preguntar el para qué de cada una antes de eliminar.
 - Ideas mencionadas no implementadas: gráfico de evolución mensual de
