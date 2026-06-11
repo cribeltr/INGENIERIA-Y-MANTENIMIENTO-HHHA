@@ -46,3 +46,8 @@ Cronología de todo lo construido en la sesión original con Claude:
 - 11-06-2026 · Asignación y Distribución: vista de todos los meses y buscador por serie/inventario
 - 11-06-2026 · Informe por servicio con columnas filtrables tipo Excel y responsable
 - 11-06-2026 · Módulo Documentos: flujo documental derivado de la planilla con impresión en lote
+
+Etapa nueva (este repositorio):
+
+- 11-06-2026 · Trabajo enfocado: solo Inventario visible (TABS_VISIBLES) e importación desde Inventario vacío
+- 11-06-2026 · Ficha del equipo: documentos del plan con flujo imprimir → entregar a persona (delegación registrada) → archivar

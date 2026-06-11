@@ -118,7 +118,8 @@ correctivos:[{id,eqId,fecha,folio,ingeniero,descripcion,hitos,seguimiento,
 cerrado}], pendientes:[{id,titulo,eqId,limite,prio,sapo,deleg,sub,updates,
 done,creado}], asig:{mes:{eqId:resp}}, docs:{"id-m":{int,emp}},
 reprog:{"id-m":{causal,destino}}, mpEjec:{"id-m":{f,e,st,o}},
-docflow:{key:{st,f}}, responsables:[11 ejecutores], config, ultimaImport }`
+docflow:{key:{st,f,a}} (a = a quién se entregó/delegó el documento),
+responsables:[11 ejecutores], config, ultimaImport }`
 
 ## Cómo probar (sin navegador)
 
@@ -129,6 +130,11 @@ usuario**. El lector/generador xlsx se valida con openpyxl en Python.
 
 ## Estado actual e ideas pendientes (no comprometidas)
 
+- **Trabajo enfocado en una sola vista (decisión 11-06-2026):** la constante
+  `TABS_VISIBLES` controla qué pestañas se ven; hoy solo `["inventario"]`.
+  El código de las demás está intacto. La ficha del equipo incluye la sección
+  "📁 Documentos del plan" (deriva de `docsDeEquipo`, compartida con `calcDocs`)
+  con flujo imprimir → entregado a persona (docflow.a) → archivado.
 - El usuario evaluará qué pestañas usa de verdad para PODAR el programa
   (minimalismo). Preguntar el para qué de cada una antes de eliminar.
 - Ideas mencionadas no implementadas: gráfico de evolución mensual de

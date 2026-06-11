@@ -36,13 +36,23 @@
 - Probar con los respaldos JSON reales del usuario antes de entregar.
 
 ## Preguntas abiertas (esperando respuesta del usuario)
-1. Objetivo de esta nueva etapa (pulir, podar, agregar, estabilizar).
-2. ¿Uso diario real ya con el Excel maestro importado, o aún en marcha blanca?
-3. Qué pestañas usa de verdad cada semana y cuáles podar.
-4. Nombre correcto del hospital para unificar (GEB dice "Hospital Regional de
+1. Nombre correcto del hospital para unificar (GEB dice "Hospital Regional de
    Temuco"; los reportes técnicos dicen "Hospital Doctor Hernán Henríquez Aravena").
+2. Destino de las pestañas ocultas: cuáles se reactivan, cuáles se podan definitivamente.
 
 ## Bitácora de aprendizajes
 - 11-06-2026 · Inicio de esta etapa: se recibe el zip con el proyecto completo
   (index.html + documentación) y se incorpora al repositorio nuevo sin cambios.
-  Pendiente: validación del entendimiento por el usuario.
+- 11-06-2026 · El usuario dirige el trabajo con instrucciones concretas y valida
+  pasando a lo siguiente (no espera ceremonias). Decidió: **trabajar en una sola
+  vista a la vez, partiendo por Inventario** (las demás ocultas con `TABS_VISIBLES`,
+  código intacto).
+- 11-06-2026 · Se refiere a los equipos por su **N° de inventario** (ej. "2-0166863"),
+  no por el ID interno del Excel.
+- 11-06-2026 · Su flujo documental real, contado con su ejemplo: en la ficha del
+  equipo quiere VER qué documento falta para completar el plan (abril con causal
+  C5 ⇒ falta el Reporte de Reprogramación con fecha fin de mes, 30-04) y desde ahí
+  **imprimir → entregarlo a una persona (ej. Ignacio Berner Bergara) dejando la
+  delegación registrada → archivar** cuando vuelve firmado. Eso reemplaza anotarlo
+  como pendiente manual.
+- 11-06-2026 · "Ignacio" = Ignacio Berner Bergara (de la lista de ejecutores).
