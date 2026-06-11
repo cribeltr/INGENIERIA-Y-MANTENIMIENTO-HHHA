@@ -206,8 +206,13 @@ const HITOS = {
 };
 const LS_KEY = "geb_hrt_v3";   // clave nueva: parte limpio, sin datos precargados
 
+// Trabajo enfocado: solo estas pestañas se muestran en la barra de navegación.
+// El resto del código queda intacto; para reactivar una pestaña basta agregar
+// su nombre aquí (p. ej. "plan", "documentos", "datos").
+const TABS_VISIBLES = ["inventario"];
+
 let S = null;          // estado global
-let tabActual = "hoy";
+let tabActual = TABS_VISIBLES[0];
 let mesPlan = new Date().getFullYear()===ANIO ? new Date().getMonth() : 0;
 let mesAsig = mesPlan;
 let filtros = {q:"",fam:"",serv:"",estado:""};
@@ -442,7 +447,10 @@ function render(){
   const focoId=act&&act.id?act.id:null;
   let caret=null;
   if(focoId&&act.selectionStart!=null){ try{caret=act.selectionStart;}catch(e){} }
-  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("act",b.dataset.t===tabActual));
+  document.querySelectorAll("#nav button").forEach(b=>{
+    b.style.display = TABS_VISIBLES.includes(b.dataset.t) ? "" : "none";
+    b.classList.toggle("act",b.dataset.t===tabActual);
+  });
   const al = calcAlertas();
   const rojas = al.filter(a=>a.nivel==="rojo").length;
   $("#nav [data-t=panel]").innerHTML = "📊 Panel"+(rojas?` <span class="pill">${rojas}</span>`:"");
@@ -1004,6 +1012,22 @@ function tablaDist(campo,titulo){
   </tr>`).join("")}</table></div>`;
 }
 function vInventario(){
+  if(!S.equipos.length) return `
+  <h2>🗂 Inventario</h2>
+  <div class="panel" style="max-width:680px">
+    <h3>La aplicación está vacía</h3>
+    <p>Importa el Excel maestro <b>Programación MP (.xlsm)</b>: se cargan el
+    <b>inventario de equipos</b> y el <b>plan anual de mantenciones</b>
+    (hojas PMP_2026 y Registro_MP-2026). Si tienes un respaldo de la
+    aplicación (.json), también puedes restaurarlo aquí.</p>
+    <div class="flex">
+      <label class="btn" style="display:inline-block">⬆ Importar Programación MP (.xlsm)
+        <input type="file" accept=".xlsm,.xlsx" style="display:none" onchange="importarMaestroUI(this)"></label>
+      <label class="btn sec" style="display:inline-block">⬆ Restaurar respaldo (.json)
+        <input type="file" accept=".json,application/json" style="display:none" onchange="importarJSON(this)"></label>
+      <span id="imp-estado" class="nota"></span>
+    </div>
+  </div>`;
   if(vistaInv==="dist"){
     return `<h2>Inventario maestro — Distribución</h2>
     <div class="fila-filtros">
@@ -1072,6 +1096,8 @@ function pintarModalEquipo(){
   const ficha = (S.fichas[e.id]||[]).map((ev,i)=>({f:ev.f,t:ev.t,e:ev.e,st:ev.st,i})).reverse();
   const corrs = S.correctivos.filter(c=>c.eqId===e.id);
   const pends = S.pendientes.filter(p=>p.eqId===e.id && !p.done);
+  const docsEq = docsDeEquipo(e);
+  const docsPend = docsEq.filter(d=>d.est!=="archivado");
   const mesHoy = new Date().getFullYear()===ANIO ? new Date().getMonth() : -1;
   const grilla = MESES.map((mn,i)=>{
     const p=e.plan[i], r=codResultado(e.resultado[i][1]);
@@ -1106,6 +1132,30 @@ function pintarModalEquipo(){
   <div class="meses">${grilla}</div>
   ${e.obs?`<p class="nota"><b>Obs. PMP:</b> ${esc(e.obs)}</p>`:""}
   ${e.obsReg?`<p class="nota"><b>Obs. registro:</b> ${esc(e.obsReg)}</p>`:""}
+  <h3>📁 Documentos del plan ${docsPend.length?`— <span style="color:var(--ambar)">falta${docsPend.length===1?"":"n"} ${docsPend.length} para completar la carpeta</span>`:(docsEq.length?"— carpeta al día ✅":"")}</h3>
+  ${docsEq.length?docsEq.map(d=>{
+    const fl=S.docflow[d.key]||{};
+    const fecha=d.clase==="rep"?` · fecha ${fmtDia(finDeMes(d.m))}`:"";
+    const det=d.clase==="rep"?`<span class="tag C">${esc(d.det)}</span>`:tagRes(d.det);
+    let estado="", acciones="";
+    if(d.est==="archivado"){
+      estado=`✅ Archivado${fl.f?" el "+fmtF(fl.f):""}${fl.a?` · entregado a ${esc(fl.a)}`:""}`;
+      acciones=`<button class="btn mini sec no-print" onclick="setDocEst('${d.key}','${d.clase}',${e.id},${d.m},'${fl.a?"entregado":"imprimir"}')">↩ Reabrir</button>`;
+    }else if(d.est==="entregado"){
+      estado=`✍️ Entregado${fl.a?` a <b>${esc(fl.a)}</b>`:""}${fl.f?" el "+fmtF(fl.f):""} — espera firma`;
+      acciones=`${d.clase==="rep"?`<button class="btn mini sec no-print" onclick="imprimirDocFicha(${e.id},${d.m})">🖨 Reimprimir</button>`:""}
+        <button class="btn mini no-print" onclick="setDocEst('${d.key}','${d.clase}',${e.id},${d.m},'archivado')">✅ Archivar en carpeta</button>`;
+    }else{
+      estado=`📄 Por imprimir`;
+      acciones=`${d.clase==="rep"?`<button class="btn mini no-print" onclick="imprimirDocFicha(${e.id},${d.m})">🖨 Imprimir</button>`:""}
+        ${selEjecutores("doc-a-"+d.key, S.responsables.includes(d.resp)?d.resp:"", "— ¿a quién se entrega? —")}
+        <button class="btn mini no-print" onclick="entregarDoc('${d.key}','${d.clase}',${e.id},${d.m})">✍️ Entregado</button>`;
+    }
+    return `<div class="alerta ${d.est==="archivado"?"azul":"ambar"}" style="${d.est==="archivado"?"opacity:.65":""}">
+      <b>${esc(d.tipo)} — ${MESES_L[d.m]} ${ANIO} ${det}${fecha}</b>
+      <div class="flex" style="margin-top:4px">${estado} ${acciones}</div>
+    </div>`;
+  }).join(""):'<p class="nota">Sin documentos derivados del plan (se generan al registrar una causal o una MP ejecutada).</p>'}
   <div class="dosc">
     <div>
       <h3>Ficha técnica (historial)</h3>
@@ -2518,46 +2568,77 @@ const COLS_DOC=[
   {k:"servicio",n:"Servicio",w:"11.5%"},{k:"det",n:"Detalle",w:"9%"},
   {k:"resp",n:"Responsable",w:"12%"},{k:"est",n:"Estado",w:"15%",nf:true}
 ];
+function docsDeEquipo(e){
+  // documentos que la planilla exige para este equipo (todos los meses)
+  const out=[];
+  e.resultado.forEach((rr,m)=>{
+    const r=codResultado(rr[1]);
+    const resp=(S.asig[m]||{})[e.id]||e.respMP||"(sin asignar)";
+    if(/^C[1-8]$/.test(r)){
+      const key="rep-"+e.id+"-"+m;
+      out.push({key, tipo:"Reporte reprogramación", mesN:MESES[m], m, eq:e, inv:e.inv||e.serie,
+        equipo:e.equipo, servicio:e.servicio, det:r, resp,
+        est:(S.docflow[key]||{}).st||"imprimir", clase:"rep"});
+    }
+    if(esEjecutada(r)){
+      const d=S.docs[e.id+"-"+m]||{};
+      const ki="int-"+e.id+"-"+m;
+      out.push({key:ki, tipo:FAM_EXTERNA.includes(e.fam)?"Reporte interno MP":"Protocolo MP", mesN:MESES[m], m, eq:e,
+        inv:e.inv||e.serie, equipo:e.equipo, servicio:e.servicio, det:r, resp,
+        est:d.int?"archivado":((S.docflow[ki]||{}).st||"imprimir"), clase:"int"});
+      if(FAM_EXTERNA.includes(e.fam)){
+        const ke="emp-"+e.id+"-"+m;
+        out.push({key:ke, tipo:"Informe empresa", mesN:MESES[m], m, eq:e, inv:e.inv||e.serie,
+          equipo:e.equipo, servicio:e.servicio, det:r, resp,
+          est:d.emp?"archivado":((S.docflow[ke]||{}).st||"imprimir"), clase:"emp"});
+      }
+    }
+  });
+  return out;
+}
 function calcDocs(){
   const out=[];
   S.equipos.forEach(e=>{
     if(e.baja) return;
-    e.resultado.forEach((rr,m)=>{
-      if(mesDoc>=0&&m!==mesDoc) return;
-      const r=codResultado(rr[1]);
-      const resp=(S.asig[m]||{})[e.id]||e.respMP||"(sin asignar)";
-      if(/^C[1-8]$/.test(r)){
-        const key="rep-"+e.id+"-"+m;
-        out.push({key, tipo:"Reporte reprogramación", mesN:MESES[m], m, eq:e, inv:e.inv||e.serie,
-          equipo:e.equipo, servicio:e.servicio, det:r, resp,
-          est:(S.docflow[key]||{}).st||"imprimir", clase:"rep"});
-      }
-      if(esEjecutada(r)){
-        const d=S.docs[e.id+"-"+m]||{};
-        const ki="int-"+e.id+"-"+m;
-        out.push({key:ki, tipo:FAM_EXTERNA.includes(e.fam)?"Reporte interno MP":"Protocolo MP", mesN:MESES[m], m, eq:e,
-          inv:e.inv||e.serie, equipo:e.equipo, servicio:e.servicio, det:r, resp,
-          est:d.int?"archivado":((S.docflow[ki]||{}).st||"imprimir"), clase:"int"});
-        if(FAM_EXTERNA.includes(e.fam)){
-          const ke="emp-"+e.id+"-"+m;
-          out.push({key:ke, tipo:"Informe empresa", mesN:MESES[m], m, eq:e, inv:e.inv||e.serie,
-            equipo:e.equipo, servicio:e.servicio, det:r, resp,
-            est:d.emp?"archivado":((S.docflow[ke]||{}).st||"imprimir"), clase:"emp"});
-        }
-      }
-    });
+    docsDeEquipo(e).forEach(d=>{ if(mesDoc<0||d.m===mesDoc) out.push(d); });
   });
   _dist.docs=out;
   return out;
 }
-function setDocEst(key,clase,id,m,v){
+function setDocEst(key,clase,id,m,v,a){
   if(clase==="int"||clase==="emp"){
     const k2=id+"-"+m;
     if(!S.docs[k2]) S.docs[k2]={};
     S.docs[k2][clase==="int"?"int":"emp"]=(v==="archivado");
   }
-  S.docflow[key]={st:v, f:hoyISO()};
+  const prev=S.docflow[key]||{};
+  const fl={st:v, f:hoyISO()};
+  // conservar a quién se entregó, salvo que el flujo vuelva a empezar
+  if(a) fl.a=a; else if(prev.a && v!=="imprimir") fl.a=prev.a;
+  S.docflow[key]=fl;
   guardar(); render();
+  if(modalEqId!=null) pintarModalEquipo();
+}
+function fmtDia(d){ return String(d.getDate()).padStart(2,"0")+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+d.getFullYear(); }
+function entregarDoc(key,clase,id,m){
+  const sel=document.getElementById("doc-a-"+key);
+  const a=sel?sel.value:"";
+  if(!a) return alert("Elige a quién entregas el documento, para dejar registrada la delegación.");
+  setDocEst(key,clase,id,m,"entregado",a);
+}
+function imprimirDocFicha(id,m){
+  // imprime el reporte de reprogramación de un solo equipo desde su ficha
+  const e=eq(id);
+  const d={eq:e, m, det:codResultado(e.resultado[m][1]),
+    resp:(S.asig[m]||{})[e.id]||e.respMP||"(sin asignar)"};
+  const fondo=$("#modal-fondo"), main=$("#main");
+  const prev=main.innerHTML;
+  fondo.classList.remove("abierto");
+  main.innerHTML=formReprog(d);
+  window.print();
+  main.innerHTML=prev;
+  fondo.classList.add("abierto");
+  render();
 }
 function formReprog(d){
   const e=d.eq;
